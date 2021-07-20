@@ -9,8 +9,8 @@ import java.lang.ArithmeticException
 
 class MainActivity : AppCompatActivity() {
 
-    var lastNumeric : Boolean = false
-    var lastDot : Boolean = false
+    private var lastNumeric : Boolean = false
+    private var lastDot : Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,13 +22,13 @@ class MainActivity : AppCompatActivity() {
         lastNumeric = true
     }
 
-    fun onClear(view: View){
+    fun onClear() {
         tvInput.text = ""
         lastNumeric = false
         lastDot = false
     }
 
-    fun onDecimalPoint(view: View){
+    fun onDecimalPoint() {
         if(lastNumeric && !lastDot){
             tvInput.append(".")
             lastNumeric = false
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun onEqual(view: View){
+    fun onEqual() {
         if(lastNumeric){
             var tvValue = tvInput.text.toString()
             var prefix = ""
@@ -45,22 +45,67 @@ class MainActivity : AppCompatActivity() {
                     prefix="-"
                     tvValue = tvValue.substring(1)
                 }
-                if(tvValue.contains("-")){
-                    val splitValue = tvValue.split("-")
+                when {
+                    tvValue.contains("-") -> {
+                        val splitValue = tvValue.split("-")
 
-                    var one = splitValue[0]
-                    var two = splitValue[1]
+                        var one = splitValue[0]
+                        val two = splitValue[1]
 
-                    if(!prefix.isEmpty()){
-                        one = prefix + one
+                        if(prefix.isNotEmpty()){
+                            one = prefix + one
+                        }
+
+                        tvInput.text = removeZeroAfterDot((one.toDouble() - two.toDouble()).toString())
                     }
+                    tvValue.contains("*") -> {
+                        val splitValue = tvValue.split("*")
 
-                    tvInput.text = (one.toDouble() - two.toDouble()).toString()
+                        var one = splitValue[0]
+                        val two = splitValue[1]
+
+                        if(prefix.isNotEmpty()){
+                            one = prefix + one
+                        }
+
+                        tvInput.text = (one.toDouble() * two.toDouble()).toString()
+                    }
+                    tvValue.contains("+") -> {
+                        val splitValue = tvValue.split("+")
+
+                        var one = splitValue[0]
+                        val two = splitValue[1]
+
+                        if(prefix.isNotEmpty()){
+                            one = prefix + one
+                        }
+
+                        tvInput.text = removeZeroAfterDot((one.toDouble() + two.toDouble()).toString())
+                    }
+                    tvValue.contains("/") -> {
+                        val splitValue = tvValue.split("/")
+
+                        var one = splitValue[0]
+                        val two = splitValue[1]
+
+                        if(prefix.isNotEmpty()){
+                            one = prefix + one
+                        }
+
+                        tvInput.text = removeZeroAfterDot((one.toDouble() / two.toDouble()).toString())
+                    }
                 }
             } catch (e: ArithmeticException){
                 e.printStackTrace()
             }
         }
+    }
+
+    private fun removeZeroAfterDot(result: String) : String {
+        var value = result
+        if (result.contains(".0"))
+            value = result.substring(0, result.length-2)
+        return value
     }
 
     fun onOperator(view: View) {
